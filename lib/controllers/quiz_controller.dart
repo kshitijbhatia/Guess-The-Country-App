@@ -1,25 +1,23 @@
-import 'package:guess_the_country/models/quiz_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:guess_the_country/models/quiz_data.dart';
 
 final quizController = StateNotifierProvider<QuizController, QuizData>((ref) => QuizController(),);
 
-class QuizController extends StateNotifier<QuizData> {
+class QuizController extends StateNotifier<QuizData>{
   QuizController() : super(QuizData.empty());
 
-  setCountryList(List<String> countryList) {
-    state = state.copyWith(countries: countryList);
+  int reduceOneLife() {
+    final numberOfLives = state.livesLeft;
+    state = state.copyWith(livesLeft: numberOfLives - 1);
+    return numberOfLives - 1;
   }
 
-  setCorrectCountryIndex(int correctCountryIndex) {
-    state = state.copyWith(index: correctCountryIndex);
+  reviveAllLives() {
+    state = state.copyWith(livesLeft: 4);
   }
 
-  startCountDownController() {
-    state = state.copyWith(startCountDown: true);
-  }
-
-  changeFlagImage(String imageName) {
-    final String path = "assets/flags/${imageName.toLowerCase()}.svg";
-    state = state.copyWith(flagImgPath: path);
+  void increasePoint() {
+    final numberOfPoints = state.pointsEarned;
+    state = state.copyWith(pointsEarned: numberOfPoints + 1);
   }
 }

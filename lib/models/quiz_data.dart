@@ -1,38 +1,26 @@
-import 'dart:ui';
-
 class QuizData {
-  List<String> countries;
-  int correctCountryIndex;
-  bool startCountDown;
-  String flagImgPath;
+  int pointsEarned;
+  int livesLeft;
 
   QuizData({
-    required this.correctCountryIndex,
-    required this.countries,
-    required this.startCountDown,
-    required this.flagImgPath
+    required this.pointsEarned,
+    required this.livesLeft
   });
 
   factory QuizData.empty() {
     return QuizData(
-      correctCountryIndex: -1,
-      countries: [],
-      startCountDown: false,
-      flagImgPath: "",
+      pointsEarned: 0,
+      livesLeft: 4,
     );
   }
 
   copyWith({
-    int? index,
-    List<String>? countries,
-    bool? startCountDown,
-    String? flagImgPath
+    int? livesLeft,
+    int? pointsEarned,
   }) {
     return QuizData(
-      correctCountryIndex: index ?? correctCountryIndex,
-      countries: countries ?? this.countries,
-      startCountDown: startCountDown ?? this.startCountDown,
-      flagImgPath: flagImgPath ?? this.flagImgPath
+      pointsEarned: pointsEarned ?? this.pointsEarned,
+      livesLeft: livesLeft ?? this.livesLeft,
     );
   }
 }

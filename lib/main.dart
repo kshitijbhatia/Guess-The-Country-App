@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:guess_the_country/config/theme/theme.dart';
-import 'package:guess_the_country/quiz_page.dart';
+import 'package:guess_the_country/ui/home_page.dart';
+import 'package:guess_the_country/ui/quiz_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 SharedPreferences? prefs;
@@ -34,7 +35,7 @@ class _MyAppState extends State<MyApp> {
           title: 'Flutter Demo',
           theme: themeData(),
           debugShowCheckedModeBanner: false,
-          home: const QuizPage(),
+          home: HomePage(),
         );
       },
     );
