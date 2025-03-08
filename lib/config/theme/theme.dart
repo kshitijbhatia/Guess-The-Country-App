@@ -8,6 +8,7 @@ ThemeData themeData() {
     textTheme: TextTheme(
       labelMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontFamily: "Ubuntu", fontSize: 18.sp),
       headlineLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontFamily: "Ubuntu", fontSize: 56.sp),
+      headlineMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontFamily: "Ubuntu", fontSize: 24.sp),
       titleMedium: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontFamily: "Ubuntu", fontSize: 20.sp),
     )
   );

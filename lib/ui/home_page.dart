@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     transitionController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    transitionAnimation = Tween<double>(begin: 1, end: 20).animate(CurvedAnimation(parent: transitionController, curve: Curves.bounceIn));
+    transitionAnimation = Tween<double>(begin: 1, end: 20).animate(CurvedAnimation(parent: transitionController, curve: Curves.ease));
     transitionController.addListener(() {
       if(transitionController.isAnimating) {
         setState(() {

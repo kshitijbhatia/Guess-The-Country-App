@@ -25,7 +25,7 @@ class QuizPage extends ConsumerStatefulWidget {
 class _QuizPageState extends ConsumerState<QuizPage> with TickerProviderStateMixin {
   String correctCountry = "";
 
-  final int totalPoints = 10;
+  final int _totalPoints = 10;
 
   late final AnimationController countDownController;
   late final Animation<double> countDownAnimation;
@@ -82,15 +82,6 @@ class _QuizPageState extends ConsumerState<QuizPage> with TickerProviderStateMix
       correctAnsScaleAnimation[index] = Tween<double>(begin: 1.0, end: 1.05).animate(correctAnsController[index]!);
       correctAnsColorAnimation[index] = ColorTween(begin: Colors.white, end: const Color(0xFF74ee15)).animate(correctAnsController[index]!);
       correctTextColorAnimation[index] = ColorTween(begin: Colors.black, end: Colors.white).animate(correctAnsController[index]!);
-
-      correctAnsController[index]!.addListener(() {
-        if(correctAnsController[index]!.isCompleted) {
-          Future.delayed(const Duration(seconds: 1), () {
-            _getRandomCountries();
-            correctAnsController[index]!.reset();
-          },);
-        }
-      },);
     }
   }
 
@@ -152,12 +143,11 @@ class _QuizPageState extends ConsumerState<QuizPage> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
 
-    ref.listen(quizController.select((value) => value.livesLeft,), (previous, next) {
-      if(next == 0) {
-        ref.read(quizController.notifier).reviveAllLives();
-        Future.delayed(const Duration(milliseconds: 600), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(),)),);
-      }
-    },);
+    // ref.listen(quizController.select((value) => value.livesLeft,), (previous, next) {
+    //   if(next == 0) {
+    //     playerLost();
+    //   }
+    // },);
 
     return SafeArea(
       child: Scaffold(
@@ -250,7 +240,7 @@ class _QuizPageState extends ConsumerState<QuizPage> with TickerProviderStateMix
       builder: (context, ref, child) {
         int pointsEarned = ref.watch(quizController.select((value) => value.pointsEarned,));
         return Container(
-          child: Text("$pointsEarned/10", style: Theme.of(context).textTheme.titleMedium,),
+          child: Text("$pointsEarned/$_totalPoints", style: Theme.of(context).textTheme.titleMedium,),
         );
       },
     );
@@ -277,23 +267,59 @@ class _QuizPageState extends ConsumerState<QuizPage> with TickerProviderStateMix
       builder: (context, ref, child) {
         final int correctCountryIndex = ref.watch(questionController.select((value) => value.correctCountryIndex,));
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
+
             HapticFeedback.heavyImpact();
 
             if(countriesJson[correctCountry] == countryName) {
+
+              /// Increase the player earned point
               ref.read(quizController.notifier).increasePoint();
+              final int totalEarnedPoints = ref.read(quizController.select((value) => value.pointsEarned,));
+
+              /// Start the correct answer animation
               correctAnsController[index]!.forward();
+
+              /// Player Won
+              if(totalEarnedPoints == _totalPoints) {
+                playerWon();
+                return;
+              }
+
+              /// Get the new country and reset the correct animation
+              Future.delayed(const Duration(seconds: 1), () async {
+                correctAnsController[index]!.reset();
+                _getRandomCountries();
+              },);
+
             } else {
+
+              /// Wrong answer animation
               wrongAnsController[index]!.forward();
 
+              /// Stop the countdown
+              countDownController.stop();
+
+              /// Correct Answer animation
               Future.delayed(const Duration(milliseconds: 400), () {
                 correctAnsController[correctCountryIndex]!.forward();
               },);
 
+              /// Reduce players 1 life
               Future.delayed(const Duration(seconds: 1), () {
                 int index = ref.read(quizController.notifier).reduceOneLife();
                 reduceLifeController[index]!.forward();
-              });
+              }).then((value) {
+
+                /// Player Lost
+                if(ref.read(quizController.select((value) => value.livesLeft,)) == 0) {
+                  playerLost();
+                  return;
+                }
+
+                correctAnsController[correctCountryIndex]!.reset();
+                _getRandomCountries();
+              },);
             }
           },
           child: AnimatedBuilder(
@@ -331,4 +357,25 @@ class _QuizPageState extends ConsumerState<QuizPage> with TickerProviderStateMix
     );
   }
 
+  void playerWon() {
+    countDownController.stop();
+    dialogBox(context, title: "You Won", subTitle: "Thanks For Playing!!!");
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      Navigator.pop(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(),));
+    },);
+  }
+
+  void playerLost() {
+    countDownController.stop();
+    dialogBox(context, title: "You Lost", subTitle: "Get Better Dumbass");
+    ref.read(quizController.notifier).reviveAllLives();
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      Navigator.pop(context);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(),));
+    },);
+  }
 }
+
+/// Correct Answer Selected -> point increase animation -> correct answer animation -> getRandomCountry -> countDown Animation restart -> wrong Animation reset -> reset correct animation
+/// Wrong Answer Selected -> wrong answer animation -> correct answer animation -> getRandomCountry -> countDown Animation restart -> wrong Animation reset -> reset correct animation -> reduce 1 life animation
